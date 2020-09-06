@@ -1,0 +1,47 @@
+﻿@addTagHelper "*, Microsoft.AspNetCore.Mvc.TagHelpers"
+@model ExploreCalifornia.Model.Post
+@{
+    Layout = "_Layout";
+}
+
+<h1>Create Blog Post</h1>
+
+<fieldset>
+    <!-- tag helpers come with a bit more control compared to basic html helpers
+        u@sing (Html.BeginForm()) { } - html helpers way to create a form -->
+    <form asp-action="Create" asp-controller="Blog"> <!-- tag helpers way to create a form ( check annotation at the top )-->
+
+        <div asp-validaion-summary="ModelOnly" class="input-validation-error"></div>
+        <!--H@tml.ValidationSummary()-->
+
+        <p>
+            <!-- Tag Helpers way-->
+            <label asp-for="Title"></label>
+            <input asp-for="Title" class="form-control" placeholder="Blog Post Title" />
+            <span asp-validation-for="Title"></span>
+            <!-- Html Helpers way-->
+            <!-- H@tml.LabelFor(x => x.Title) -->
+            <!-- H@tml.EditorFor(x => x.Title) -->
+            <!-- H@tml.ValidationMessageFor(x => x.Title) -->
+
+        </p>
+
+        <p>
+            <!-- html helpers way of doing the form..
+            H@tml.LabelFor(x => x.Body)
+            H@tml.EditorFor(x => x.Body)
+            H@tml.ValidationMessageFor(x => x.Title)
+            -->
+            <label asp-for="Body"></label>
+            <textarea asp-for="Body" class="form-control" placeholder="Blog post content"></textarea>
+            <span asp-validation-for="Body"></span>
+
+        </p>
+
+        <p>
+            <button type="submit">Create Post</button>
+        </p>
+
+    </form>
+
+</fieldset>

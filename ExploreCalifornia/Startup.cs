@@ -1,13 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using ExploreCalifornia.Model;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
 
 namespace ExploreCalifornia
 {
@@ -28,10 +25,27 @@ namespace ExploreCalifornia
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient<FeatureToggle>(x => new FeatureToggle()
+            services.AddTransient<FeatureToggle>(x => new FeatureToggle
             {
                 DeveloperExceptions = configuration.GetValue<bool>("FeatureToggles:DeveloperExceptions")
             });
+
+            /* Check Model/BlogDataContext below as well. 
+             * The connection string will connect to the ExploreCalifornia database, on the local sql server express 
+             * instance installed along with Visual Studio. This configuration lines build up a DB context options object
+             * which entity framework needs to be able to give to our DataContext. To do this a constructor needs to be added
+             * that accepts a DbContext options object and just passes it to the DbContext base class. (Goto BlogDataCOntext)
+             */
+            services.AddDbContext<BlogDataContext>(options =>
+            {
+                var connectionString = configuration.GetConnectionString("BlogDataContext");
+                options.UseSqlServer(connectionString);
+            });
+
+            services.AddMvc();
+
+            //services.AddControllers(); // ### needs to be added for the UseEndpoints function used below
+            //services.AddControllersWithViews();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -59,13 +73,20 @@ namespace ExploreCalifornia
             app.UseRouting();
 
             app.Use(async (context, next) =>
-            { 
+            {
                 if (context.Request.Path.Value.Contains("invalid"))
-                throw new Exception("ERROR!");
+                    throw new Exception("ERROR!");
 
-            await next();
+                await next();
             });
 
+            // # # # in the tutorial the guy uses app.UseMvc(... and routes.MapRoute(... instead of MapControllerRoute 
+            app.UseEndpoints(routes =>
+            {
+                routes.MapControllerRoute("Default",
+                    "{controller=Home}/{action=Index}/{id?}"
+                    );
+            });
 
             // # # # This function is used for routing any request to the static html files from the project
             app.UseFileServer();
@@ -82,4 +103,7 @@ namespace ExploreCalifornia
  * addTransient -> shortest lifespan, create a new instance everytime that is used ( by other methods.. )
  * addScoped -> permits to share state between different components trough the same request
  * addSingleton -> only one for every request or application lifetime ( for all users )
+ * 
+ * 
+ * More about dynamic content with Razor at lines 40-50 in the index.cshtml file...
  */

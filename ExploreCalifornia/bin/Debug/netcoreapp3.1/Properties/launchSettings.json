@@ -13,7 +13,7 @@
       "launchBrowser": true,
       "environmentVariables": {
         "EnableDeveloperExceptions": "True",
-        "ASPNETCORE_ENVIRONMENT": "Production"
+        "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
     "ExploreCalifornia": {
